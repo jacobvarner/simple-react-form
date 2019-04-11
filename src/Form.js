@@ -10,6 +10,7 @@ class Form extends Component {
       lastName: '',
       address: '',
       addressTwo: '',
+      phoneNumber: '',
       firstNameError: false,
       lastNameError: false,
       addressError: false,
@@ -22,9 +23,54 @@ class Form extends Component {
 
   onTextBoxChange(event) {
     const target = event.target;
-    const value = target.value;
-    const name = target.name;
+    let value = target.value;
+    let name = target.name;
     const nameError = target.name + 'Error';
+
+    if (name === 'phoneNumber') {
+      console.log('Name: ' + name);
+      console.log('Value: ' + value);
+      let matchSpace = /\ /g;
+      let matchNumber = /\d/g;
+      let matchLetter = /[^\d\(\)\-\ ]/g;
+      let matchNumberOrOpenParentheses = /\d|\(/g;
+      let matchNumberOrCloseParentheses = /\d|\)/g;
+      let matchNumberOrDash = /\d|\-/g;
+
+      if (matchLetter.test(value.charAt(value.length - 1))) {
+        value = value.slice(0, -1);
+      } else if (value.length === 1) {
+        if (matchNumberOrOpenParentheses.test(value)) {
+          if (matchNumber.test(value)) {
+            value = '(' + value;
+          }
+        }
+      } else if (value.length === 5) {
+        if (matchNumberOrCloseParentheses.test(value.charAt(4))) {
+          if (matchNumber.test(value.charAt(4))) {
+            let valueArray = value.split('');
+            valueArray.splice(4, 0, ') ');
+            value = valueArray.join('');
+          }
+        }
+      } else if (value.length === 6) {
+        if (!matchSpace.test(value.charAt(5))) {
+          let valueArray = value.split('');
+          valueArray.splice(5, 0, ' ');
+          value = valueArray.join('');
+        }
+      } else if (value.length === 10) {
+        if (matchNumberOrDash.test(value.charAt(9))) {
+          if (matchNumber.test(value.charAt(9))) {
+            let valueArray = value.split('');
+            valueArray.splice(9, 0, '-');
+            value = valueArray.join('');
+          }
+        }
+      } else if (value.length > 14) {
+        value = value.slice(0, -1);
+      }
+    }
 
     this.setState({
       [name]: value,
@@ -34,7 +80,13 @@ class Form extends Component {
 
   onSubmitForm(event) {
     this.setState({ isLoading: true });
-    const { firstName, lastName, address, addressTwo } = this.state;
+    const {
+      firstName,
+      lastName,
+      address,
+      addressTwo,
+      phoneNumber
+    } = this.state;
     event.preventDefault();
     if (firstName === '') {
       this.setState({ firstNameError: true });
@@ -60,7 +112,9 @@ class Form extends Component {
           '\naddress: ' +
           address +
           '\naddressTwo: ' +
-          addressTwo
+          addressTwo +
+          '\nphoneNumber: ' +
+          phoneNumber
       );
 
       this.setState({
@@ -69,6 +123,7 @@ class Form extends Component {
         lastName: '',
         address: '',
         addressTwo: '',
+        phoneNumber: '',
         firstNameError: false,
         lastNameError: false,
         addressError: false
@@ -82,6 +137,7 @@ class Form extends Component {
       lastName,
       address,
       addressTwo,
+      phoneNumber,
       firstNameError,
       lastNameError,
       addressError
@@ -147,6 +203,17 @@ class Form extends Component {
             value={addressTwo}
             onChange={this.onTextBoxChange}
             className={addressTwo !== '' ? 'filled' : null}
+          />
+          <label id="address-two-label" for="addressTwo">
+            Phone Number (Optional)
+          </label>
+          <input
+            id="phone-number"
+            type="text"
+            name="phoneNumber"
+            value={phoneNumber}
+            onChange={this.onTextBoxChange}
+            className={phoneNumber !== '' ? 'filled' : null}
           />
           <button id="submit" type="submit">
             Next
